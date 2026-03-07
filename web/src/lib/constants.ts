@@ -7,3 +7,10 @@ export const IMPACT_STATS = {
   /** AI 케어 운영 일수 */
   AI_CARE_DAYS: 365,
 } as const;
+
+/** KOSIS e-지방지표 빈집비율 (전국 전체 주택 기준) */
+export const KOSIS_VACANCY = {
+  /** 전국 빈집비율 (%) - 2024년 */
+  NATIONAL_RATE: 8.0,
+  YEAR: 2024,
+} as const;

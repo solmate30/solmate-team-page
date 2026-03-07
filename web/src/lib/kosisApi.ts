@@ -1,3 +1,5 @@
+import { KOSIS_VACANCY } from "@/lib/constants";
+
 export interface AgeData {
   age: string;
   ageCode: string;
@@ -35,6 +37,81 @@ const MOCK_RESULT: KosisResult = {
 
 const AGE_ORDER = ["01","02","03","04","05","06","07","08"];
 
+// ─────────────────────────────────────────────
+// 전국 빈집비율 (통계청 인구주택총조사, KOSIS)
+// 빈집 수: orgId=101, tblId=DT_1JU1512 (미거주 주택(빈집), itmId=T000)
+// 전체 주택: orgId=101, tblId=DT_1JU1501 (주택의 종류별 주택, itmId=T10)
+// ─────────────────────────────────────────────
+export interface VacancyRateResult {
+  rate: number;
+  year: number;
+  isFallback: boolean;
+}
+
+const VACANCY_FALLBACK = { rate: KOSIS_VACANCY.NATIONAL_RATE, year: KOSIS_VACANCY.YEAR };
+const KOSIS_BASE = "https://kosis.kr/openapi/Param/statisticsParameterData.do";
+
+async function fetchKosisValue(
+  apiKey: string,
+  tblId: string,
+  itmId: string,
+  objL1: string,
+  extraParams?: Record<string, string>
+): Promise<{ value: number; year: number }> {
+  const params = new URLSearchParams({
+    method: "getList",
+    apiKey,
+    orgId: "101",
+    tblId,
+    objL1,
+    itmId,
+    prdSe: "Y",
+    newEstPrdCnt: "1",
+    format: "json",
+    jsonVD: "Y",
+    useNm: "Y",
+    ...extraParams,
+  });
+
+  const res = await fetch(`${KOSIS_BASE}?${params}`, { next: { revalidate: 86400 } });
+  if (!res.ok) throw new Error(`KOSIS HTTP ${res.status}`);
+
+  const raw: Record<string, string>[] = await res.json();
+  if (!Array.isArray(raw) || raw[0]?.err) throw new Error(`KOSIS err: ${raw[0]?.err}`);
+
+  const row = raw[0];
+  const value = parseFloat(row.DT);
+  const year = parseInt(row.PRD_DE, 10);
+  if (isNaN(value) || isNaN(year)) throw new Error("값 파싱 실패");
+  return { value, year };
+}
+
+export async function fetchNationalVacancyRate(): Promise<VacancyRateResult> {
+  const apiKey = process.env.KOSIS_API_KEY;
+  if (!apiKey) return { ...VACANCY_FALLBACK, isFallback: true };
+
+  try {
+    const [vacant, total] = await Promise.all([
+      // 전국 빈집 수 (주택_계, objL2=ALL 필요)
+      fetchKosisValue(apiKey, "DT_1JU1512", "T000", "00", { objL2: "ALL" }),
+      // 전국 전체 주택 수
+      fetchKosisValue(apiKey, "DT_1JU1501", "T10", "00"),
+    ]);
+
+    if (total.value === 0) throw new Error("전체 주택 수 0");
+    const rate = Math.round((vacant.value / total.value) * 1000) / 10; // 소수점 1자리
+    return { rate, year: vacant.year, isFallback: false };
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[kosisApi] 빈집비율 조회 실패:", err);
+    }
+    return { ...VACANCY_FALLBACK, isFallback: true };
+  }
+}
+
+// ─────────────────────────────────────────────
+// 독거인 연령 통계 (행정안전부, KOSIS)
+// ─────────────────────────────────────────────
 export async function fetchKosisData(): Promise<KosisResult> {
   const apiKey = process.env.KOSIS_API_KEY;
   if (!apiKey) return MOCK_RESULT;
