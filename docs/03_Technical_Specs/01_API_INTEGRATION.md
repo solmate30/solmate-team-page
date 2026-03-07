@@ -1,6 +1,6 @@
 # 01_API_INTEGRATION
 > Created: 2026-03-07 04:30
-> Last Updated: 2026-03-07 (문서 검토 반영)
+> Last Updated: 2026-03-07 (KOSIS 전국 빈집비율 API 연동 추가)
 
 ## 1. OpenAI API (AI 챗봇)
 
@@ -78,35 +78,69 @@ UI에 "샘플 데이터" 배지 표시로 사용자에게 상태 안내.
 
 ---
 
-## 3. KOSIS 통계정보 API (고독사 현황)
+## 3. KOSIS 통계정보 API
 
-### 개요
-통계청 KOSIS(Korean Statistical Information Service) Open API. 전국 고독사(독거인 사망) 연령별 통계 데이터 제공. SocialDataSection에서 50·60대 비중 강조에 활용.
+KOSIS(Korean Statistical Information Service) Open API를 두 가지 목적으로 활용.
+공통 End Point: `https://kosis.kr/openapi/Param/statisticsParameterData.do`
+공통 환경변수: `KOSIS_API_KEY` (서버 전용), 캐시: `revalidate: 86400` (24시간)
 
-### 연동 정보
+---
+
+### 3-1. 고독사 현황 (독거인 연령별 통계)
+
+#### 개요
+행정안전부 고독사 연령별 통계. SocialDataSection에서 50·60대 비중 강조에 활용.
+
+#### 활용 데이터
 | 항목 | 내용 |
 |---|---|
-| 제공기관 | 통계청 (KOSIS) |
-| End Point | `https://kosis.kr/openapi/Param/statisticsParameterData.do` |
-| 데이터포맷 | JSON |
-| 환경변수 | `KOSIS_API_KEY` (서버 전용) |
-| 캐시 | `revalidate: 86400` (24시간) |
-| 상태 | 연동 구현 완료 (키 설정 시 실데이터, 미설정 시 Mock 폴백) |
-
-### 활용 데이터
-| 항목 | 설명 |
-|---|---|
-| `tblId` | DT_117111_A002 (행정안전부 고독사 통계) |
+| 제공기관 | 행정안전부 (orgId: `117`) |
+| tblId | `DT_117111_A002` |
 | 표시 | 연령별 고독사 수, 50·60대 비중, AgeBarChart 막대 차트 |
 
-### Mock Fallback
-API 미응답 또는 키 미설정 시 `src/lib/kosisApi.ts` 내 `MOCK_RESULT` 데이터로 자동 폴백.
-UI에 "샘플" 배지 표시로 사용자에게 상태 안내.
+#### Mock Fallback
+API 미응답 또는 키 미설정 시 `MOCK_RESULT` 데이터로 자동 폴백. UI에 "샘플" 배지 표시.
 
-### 구현 파일
-- `src/lib/kosisApi.ts` — API 호출 로직, 인터페이스 정의, Mock 데이터
-- `src/components/features/SocialDataSection.tsx` — 데이터 표시 Server Component
-- `src/components/ui/AgeBarChart.tsx` — 연령별 막대 차트
+#### 구현 파일
+- `src/lib/kosisApi.ts` — `fetchKosisData()` 함수
+- `src/components/features/SocialDataSection.tsx`
+- `src/components/ui/AgeBarChart.tsx`
+
+---
+
+### 3-2. 전국 빈집비율 (인구주택총조사)
+
+#### 개요
+통계청 인구주택총조사 데이터에서 전국 빈집 수와 전체 주택 수를 각각 조회해 비율을 실시간 계산.
+`VacantHousesSection` 요약 통계 카드 "전국 빈집률" 항목에 표시.
+
+#### 테이블 정보 (KOSIS API 직접 탐색으로 확인, 2026-03-07)
+| 구분 | orgId | tblId | itmId | 설명 |
+|---|---|---|---|---|
+| 빈집 수 | `101` (통계청) | `DT_1JU1512` | `T000` | 건축연도 및 주택의 종류별 미거주 주택(빈집), 주택\_계 |
+| 전체 주택 수 | `101` (통계청) | `DT_1JU1501` | `T10` | 주택의 종류별 주택, 전체 |
+
+#### 계산 방식
+```
+빈집비율(%) = 빈집 수(DT_1JU1512) ÷ 전체 주택 수(DT_1JU1501) × 100
+```
+- 2024년 기준: 1,599,086채 ÷ 19,872,674채 = **8.0%**
+- 두 테이블을 `Promise.all`로 병렬 조회 후 서버에서 직접 계산
+
+#### API 파라미터
+```
+objL1=00 (전국), newEstPrdCnt=1 (최신 1개년)
+DT_1JU1512 추가: objL2=ALL (건축연도별 분류 필수)
+```
+
+#### Mock Fallback
+API 실패 시 `{ rate: 8.0, year: 2024 }` 상수값으로 자동 폴백.
+UI 라벨에 `· 추정` 텍스트 표시로 사용자에게 상태 안내.
+
+#### 구현 파일
+- `src/lib/kosisApi.ts` — `fetchNationalVacancyRate()`, `fetchKosisValue()` 함수 (fallback 시 `constants.KOSIS_VACANCY` 사용)
+- `src/components/features/VacantHousesSection.tsx` — 통계 카드 표시
+- `src/lib/constants.ts` — `KOSIS_VACANCY` (fallback 상수값 단일 출처)
 
 ---
 
