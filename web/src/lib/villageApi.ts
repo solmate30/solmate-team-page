@@ -27,10 +27,12 @@ const MOCK_VILLAGES: Village[] = [
 
 const BASE_URL = "https://apis.data.go.kr/B552149/raiseRuralVill/infoVill";
 
+const FETCH_BATCH = 1000; // API 기본 정렬이 지역순이라 상위 페이지만 가져오면 빈집 0 위주. 충분히 가져와 빈집순 정렬 후 상위 N개 사용
+
 async function tryFetch(serviceKey: string, numOfRows: number) {
   const params = new URLSearchParams({
     pageNo: "1",
-    numOfRows: String(numOfRows),
+    numOfRows: String(Math.max(numOfRows, FETCH_BATCH)),
     dataType: "json",
   });
 
@@ -42,17 +44,18 @@ async function tryFetch(serviceKey: string, numOfRows: number) {
 
   const json = await res.json();
 
-  // 공공API 오류 코드 체크
   const resultCode = json?.header?.resultCode ?? json?.response?.header?.resultCode;
   if (resultCode && resultCode !== "00" && resultCode !== "0000") {
     throw new Error(`API error: ${resultCode}`);
   }
 
-  const raw = json?.body?.items?.item ?? [];
-  const items: Village[] = Array.isArray(raw) ? raw : [raw];
-  items.sort((a, b) => (b.villHouseEmpty ?? 0) - (a.villHouseEmpty ?? 0));
+  const body = json?.body ?? json?.response?.body ?? {};
+  const raw = body?.items?.item ?? [];
+  const all: Village[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  all.sort((a, b) => (b.villHouseEmpty ?? 0) - (a.villHouseEmpty ?? 0));
+  const items = all.slice(0, numOfRows);
 
-  return { items, totalCount: json?.body?.totalCount ?? items.length };
+  return { items, totalCount: body?.totalCount ?? all.length };
 }
 
 export async function fetchVillages(numOfRows = 12): Promise<VillageApiResult> {
