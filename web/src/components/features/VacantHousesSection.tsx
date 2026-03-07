@@ -1,11 +1,13 @@
 import { fetchVillages } from "@/lib/villageApi";
-import { Home, MapPin, AlertCircle } from "lucide-react";
+import { fetchNationalVacancyRate } from "@/lib/kosisApi";
+import { MapPin, AlertCircle } from "lucide-react";
 
 export async function VacantHousesSection() {
-  const { items, totalCount, isMock } = await fetchVillages(6);
+  const [
+    { items, totalCount, totalEmpty, totalHouses, isMock },
+    vacancyRate,
+  ] = await Promise.all([fetchVillages(), fetchNationalVacancyRate()]);
 
-  const totalEmpty = items.reduce((s, v) => s + (v.villHouseEmpty ?? 0), 0);
-  const totalHouses = items.reduce((s, v) => s + (v.villHouseTotCnt ?? 0), 0);
   const avgRate = totalHouses > 0 ? Math.round((totalEmpty / totalHouses) * 100) : 0;
 
   return (
@@ -37,11 +39,15 @@ export async function VacantHousesSection() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {[
             { label: "조회 마을", value: `${totalCount.toLocaleString()}개` },
             { label: "총 빈집", value: `${totalEmpty.toLocaleString()}채` },
-            { label: "평균 빈집률", value: `${avgRate}%` },
+            { label: "농촌마을 빈집률", value: `${avgRate}%` },
+            {
+              label: `전국 빈집률 (KOSIS ${vacancyRate.year}년${vacancyRate.isFallback ? " · 추정" : ""})`,
+              value: `${vacancyRate.rate}%`,
+            },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -53,12 +59,12 @@ export async function VacantHousesSection() {
           ))}
         </div>
 
-        {/* Village Cards */}
+        {/* Province Cards (시도 단위) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((village) => {
+          {items.map((province) => {
             const rate =
-              village.villHouseTotCnt > 0
-                ? Math.round((village.villHouseEmpty / village.villHouseTotCnt) * 100)
+              province.totalHouses > 0
+                ? Math.min(100, Math.round((province.totalEmpty / province.totalHouses) * 100))
                 : 0;
             const severity =
               rate >= 30 ? "text-red-500 bg-red-50 border-red-100"
@@ -67,16 +73,15 @@ export async function VacantHousesSection() {
 
             return (
               <div
-                key={village.villId}
+                key={province.sidoNm}
                 className="bg-white border border-slate-100 rounded-2xl p-6 hover:shadow-md transition-shadow flex flex-col gap-4"
               >
-                {/* Top */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-bold text-slate-900 text-lg">{village.villNm}</p>
+                    <p className="font-bold text-slate-900 text-lg">{province.sidoNm}</p>
                     <p className="flex items-center gap-1 text-sm text-slate-400 mt-0.5">
                       <MapPin className="w-3.5 h-3.5" />
-                      {village.sidoNm} {village.sggNm}
+                      농촌마을 {province.villageCount.toLocaleString()}개
                     </p>
                   </div>
                   <span className={`text-sm font-bold px-2.5 py-1 rounded-full border ${severity}`}>
@@ -84,27 +89,18 @@ export async function VacantHousesSection() {
                   </span>
                 </div>
 
-                {/* Progress Bar */}
                 <div>
                   <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-                    <span>빈집 {village.villHouseEmpty}채</span>
-                    <span>전체 {village.villHouseTotCnt}채</span>
+                    <span>빈집 {province.totalEmpty.toLocaleString()}채</span>
+                    <span>전체 {province.totalHouses.toLocaleString()}채</span>
                   </div>
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
                         rate >= 30 ? "bg-red-400" : rate >= 15 ? "bg-amber-400" : "bg-emerald-400"
                       }`}
-                      style={{ width: `${Math.min(rate, 100)}%` }}
+                      style={{ width: `${rate}%` }}
                     />
-                  </div>
-                </div>
-
-                {/* Bottom Stats */}
-                <div className="flex items-center gap-3 pt-1 border-t border-slate-50">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <Home className="w-3.5 h-3.5" />
-                    슬레이트 {village.villHouseSlate}채
                   </div>
                 </div>
               </div>
@@ -113,7 +109,7 @@ export async function VacantHousesSection() {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-8">
-          출처: 한국농어촌공사 농산어촌지역개발 농촌마을현황 (data.go.kr) · 재생 가능 주거 매칭 대상 선별에 활용됩니다
+          출처: 한국농어촌공사 농산어촌지역개발 농촌마을현황 (data.go.kr), KOSIS e-지방지표 빈집비율 · 재생 가능 주거 매칭 대상 선별에 활용됩니다
         </p>
       </div>
     </section>
