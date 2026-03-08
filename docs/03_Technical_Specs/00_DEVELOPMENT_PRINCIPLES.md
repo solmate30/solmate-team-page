@@ -1,11 +1,12 @@
 # 00_DEVELOPMENT_PRINCIPLES
 > Created: 2026-03-07 02:46
-> Last Updated: 2026-03-07 (문서 검토 반영)
+> Last Updated: 2026-03-09 (Three.js/R3F 스택 추가, HouseScene 파일 반영)
 
 ## 1. Tech Stack (기술 스택)
 * **Frontend Framework**: Next.js 16 (App Router), React 19
 * **Styling**: Tailwind CSS v4 + shadcn/ui 기반 컴포넌트
 * **Animation**: Framer Motion — 스크롤 진입 애니메이션(`useInView`), hover 효과, Hero 초기 진입 애니메이션
+* **3D / WebGL**: Three.js + `@react-three/fiber` (R3F) — Hero 섹션 인터랙티브 파티클 배경. `dynamic({ ssr: false })`로 클라이언트 전용 로드 필수. `@react-three/drei` 설치됨(확장 대비).
 * **State Management**:
   * 로컬 상태: React `useState`, `useRef`
   * 서버 데이터 패칭/캐싱: Next.js 자체 `fetch` API 및 App Router 캐싱 활용
@@ -37,6 +38,7 @@ web/src/
 │   │   └── AgeBarChart.tsx       # 연령별 막대 차트 (SocialDataSection용)
 │   └── features/
 │       ├── HeroSection.tsx       # 랜딩 Hero + 고정 네비게이션 ('use client')
+│       ├── HouseScene.tsx        # Hero 3D 파티클 배경 (R3F, client-only dynamic import)
 │       ├── MissionTechSection.tsx # 미션/기술 소개 ('use client')
 │       ├── ImpactSection.tsx     # 공공통계 기반 임팩트 지표 ('use client')
 │       ├── ImpactCounters.tsx    # ImpactSection 하위 카운터 컴포넌트
@@ -93,3 +95,5 @@ web/src/
 * **Concept_Design**: [Product Specs](../01_Concept_Design/03_PRODUCT_SPECS.md) - 연관 기능 요구사항
 * **Technical_Specs**: [API Integration](./01_API_INTEGRATION.md) - 외부 API 연동 상세
 * **Technical_Specs**: [Error Handling](./02_ERROR_HANDLING.md) - 404, 에러 바운더리, Toast 패턴
+* **Technical_Specs**: [Hero Particle System](./03_HERO_PARTICLE_SYSTEM.md) - Three.js/R3F 파티클 시스템 구현 명세
+* **Logic_Progress**: [Hero 파티클 인터랙션 의사결정](../04_Logic_Progress/01_HERO_PARTICLE_INTERACTION.md) - 설계 결정 및 이터레이션 기록

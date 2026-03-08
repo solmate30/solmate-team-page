@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
+
+const HouseScene = dynamic(
+  () => import("./HouseScene").then(m => ({ default: m.HouseScene })),
+  { ssr: false }
+);
 
 export function HeroSection() {
   const [scrolled, setScrolled] = useState(false);
@@ -20,6 +26,7 @@ export function HeroSection() {
 
   return (
     <div className="relative overflow-hidden bg-[#FAFAFA]">
+      <HouseScene />
       {/* Navigation */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between px-6 md:px-12 transition-all duration-300 ${
@@ -78,7 +85,7 @@ export function HeroSection() {
       )}
 
       {/* Hero Content */}
-      <section className="relative pt-40 pb-20 md:pt-56 md:pb-32 px-6 md:px-12 flex flex-col items-center text-center max-w-5xl mx-auto">
+      <section className="relative z-10 pt-40 pb-20 md:pt-56 md:pb-32 px-6 md:px-12 flex flex-col items-center text-center max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
