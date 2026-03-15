@@ -1,13 +1,13 @@
 'use client';
 
-import { Droppable } from '@hello-pangea/dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { type columns, type cards, type teamMembers, type labels } from '@/db/schema';
 import { KanbanCard } from './Card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, ChevronRight, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { updateColumn } from '@/actions/kanban';
+import { updateColumn, toggleColumnCollapse } from '@/actions/kanban';
 import { toast } from 'sonner';
 import {
     Dialog,
@@ -24,6 +24,7 @@ type LabelData = typeof labels.$inferSelect;
 
 interface ColumnProps {
     column: ColumnData;
+    index: number;
     cards: CardData[];
     members: TeamMember[];
     allLabels: LabelData[];
@@ -34,13 +35,21 @@ interface ColumnProps {
     onCardUpdated: (updated: CardData) => void;
 }
 
-export function KanbanColumn({ column, cards, members, allLabels, isDragDisabled, onAddCard, onDeleteColumn, onDeleteCard, onCardUpdated }: ColumnProps) {
+export function KanbanColumn({ column, index, cards, members, allLabels, isDragDisabled, onAddCard, onDeleteColumn, onDeleteCard, onCardUpdated }: ColumnProps) {
     const [isAddingMode, setIsAddingMode] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState('');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editTitle, setEditTitle] = useState(column.title);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(column.collapsed ?? false);
     const titleInputRef = useRef<HTMLInputElement>(null);
+
+    const isDoneColumn = column.title.toLowerCase() === 'done';
+    const isArchiveColumn = column.title.toLowerCase() === 'archive';
+
+    useEffect(() => {
+        setIsCollapsed(column.collapsed ?? false);
+    }, [column.collapsed]);
 
     useEffect(() => {
         if (isEditingTitle) {
@@ -72,55 +81,101 @@ export function KanbanColumn({ column, cards, members, allLabels, isDragDisabled
         }
     };
 
+    const handleToggleCollapse = async () => {
+        const newCollapsed = !isCollapsed;
+        setIsCollapsed(newCollapsed);
+        try {
+            await toggleColumnCollapse(column.id, newCollapsed);
+        } catch {
+            setIsCollapsed(!newCollapsed);
+            toast.error('컬럼 접기/펼치기에 실패했습니다.');
+        }
+    };
+
     return (
         <>
-            <div className="flex flex-col w-72 shrink-0 h-full max-h-full">
-                <div className="bg-secondary/50 rounded-xl flex flex-col h-full overflow-hidden border">
-                    {/* Column Header */}
-                    <div className="p-3 pr-2 flex items-center justify-between shadow-sm z-10 bg-secondary/80 backdrop-blur-sm">
-                        {isEditingTitle ? (
-                            <Input
-                                ref={titleInputRef}
-                                value={editTitle}
-                                onChange={(e) => setEditTitle(e.target.value)}
-                                onBlur={handleTitleSave}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleTitleSave();
-                                    if (e.key === 'Escape') {
-                                        setEditTitle(column.title);
-                                        setIsEditingTitle(false);
-                                    }
-                                }}
-                                className="h-7 text-sm font-semibold px-1 flex-1 mr-1"
-                            />
-                        ) : (
-                            <h3
-                                className="font-semibold text-sm pl-1 cursor-pointer hover:text-primary flex-1 select-none"
-                                onDoubleClick={() => setIsEditingTitle(true)}
-                                title="더블클릭하여 편집"
+            <Draggable draggableId={column.id} index={index}>
+                {(provided, snapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`flex flex-col shrink-0 h-full transition-all duration-200 w-72 ${snapshot.isDragging ? 'opacity-50' : ''}`}
+                    >
+                        <div className={`bg-secondary/50 rounded-xl flex flex-col h-full overflow-hidden border`}>
+                            {/* Column Header */}
+                            <div
+                                {...provided.dragHandleProps}
+                                className="p-3 pr-2 flex flex-row items-center shadow-sm z-10 bg-secondary/80 backdrop-blur-sm cursor-move"
                             >
-                                {column.title}
-                                <span className="text-muted-foreground ml-1 font-normal text-xs">{cards.length}</span>
-                            </h3>
-                        )}
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                            onClick={() => setDeleteDialogOpen(true)}
+                            className="h-6 w-6 shrink-0"
+                            onClick={handleToggleCollapse}
+                            title={isCollapsed ? '펼치기' : '접기'}
                         >
-                            <Trash2 className="h-4 w-4" />
+                            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </Button>
+                        {isCollapsed ? (
+                            <div className="flex items-center justify-start flex-1 ml-2">
+                                <span className="text-sm font-semibold">
+                                    {column.title}
+                                </span>
+                                <span className="text-xs text-muted-foreground ml-2">
+                                    ({cards.length})
+                                </span>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-1 flex-1 min-w-0">
+                                    {isEditingTitle ? (
+                                        <Input
+                                            ref={titleInputRef}
+                                            value={editTitle}
+                                            onChange={(e) => setEditTitle(e.target.value)}
+                                            onBlur={handleTitleSave}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleTitleSave();
+                                                if (e.key === 'Escape') {
+                                                    setEditTitle(column.title);
+                                                    setIsEditingTitle(false);
+                                                }
+                                            }}
+                                            className="h-7 text-sm font-semibold px-1 flex-1 mr-1"
+                                        />
+                                    ) : (
+                                        <h3
+                                            className="font-semibold text-sm pl-1 cursor-pointer hover:text-primary flex-1 select-none"
+                                            onDoubleClick={() => setIsEditingTitle(true)}
+                                            title="더블클릭하여 편집"
+                                        >
+                                            {column.title}
+                                            <span className="text-muted-foreground ml-1 font-normal text-xs">{cards.length}</span>
+                                        </h3>
+                                    )}
+                                </div>
+                                {!isCollapsed && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={() => setDeleteDialogOpen(true)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </>
+                        )}
                     </div>
 
-                    {/* Droppable Area */}
-                    <Droppable droppableId={column.id} type="card">
-                        {(provided, snapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                className={`flex-1 overflow-y-auto overflow-x-hidden p-3 min-h-[150px] transition-colors ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}
-                            >
+                    {!isCollapsed && (
+                        <Droppable droppableId={column.id} type="card">
+                            {(provided, snapshot) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className={`flex-1 overflow-y-auto overflow-x-hidden p-3 min-h-[150px] transition-colors ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}
+                                >
                                 {cards.map((card, index) => (
                                     <KanbanCard
                                         key={card.id}
@@ -129,6 +184,7 @@ export function KanbanColumn({ column, cards, members, allLabels, isDragDisabled
                                         members={members}
                                         allLabels={allLabels}
                                         isDragDisabled={isDragDisabled}
+                                        isInDoneColumn={isDoneColumn || isArchiveColumn}
                                         onDelete={onDeleteCard}
                                         onUpdated={onCardUpdated}
                                     />
@@ -169,11 +225,14 @@ export function KanbanColumn({ column, cards, members, allLabels, isDragDisabled
                             </div>
                         )}
                     </Droppable>
+                    )}
                 </div>
             </div>
+            )}
+        </Draggable>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
                         <DialogTitle>컬럼 삭제</DialogTitle>

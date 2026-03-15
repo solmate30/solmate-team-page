@@ -5,6 +5,7 @@ export const columns = sqliteTable('columns', {
     title: text('title').notNull(),
     position: integer('position').notNull(),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    collapsed: integer('collapsed', { mode: 'boolean' }).default(false),
 });
 
 export const cards = sqliteTable('cards', {
@@ -18,8 +19,10 @@ export const cards = sqliteTable('cards', {
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     assignee: text('assignee'),
     dueDate: integer('due_date'),
+    completedAt: integer('completed_at'),
     priority: text('priority'),
-    labels: text('labels'), // JSON array of label IDs: ["id1","id2"]
+    labels: text('labels'),
+    archived: integer('archived', { mode: 'boolean' }).default(false),
 });
 
 export const labels = sqliteTable('labels', {

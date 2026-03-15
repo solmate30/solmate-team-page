@@ -28,17 +28,18 @@ interface CardProps {
     members: TeamMember[];
     allLabels: LabelData[];
     isDragDisabled?: boolean;
+    isInDoneColumn?: boolean;
     onDelete: (id: string) => void;
     onUpdated: (updated: CardData) => void;
 }
 
-export function KanbanCard({ card, index, members, allLabels, isDragDisabled, onDelete, onUpdated }: CardProps) {
+export function KanbanCard({ card, index, members, allLabels, isDragDisabled, isInDoneColumn, onDelete, onUpdated }: CardProps) {
     const [modalOpen, setModalOpen] = useState(false);
 
     const cardLabelIds: string[] = (() => { try { return JSON.parse(card.labels ?? '[]'); } catch { return []; } })();
     const cardLabels = cardLabelIds.map((id) => allLabels.find((l) => l.id === id)).filter(Boolean) as LabelData[];
 
-    const isOverdue = card.dueDate && card.dueDate < Date.now();
+    const isOverdue = card.dueDate && !isInDoneColumn && card.dueDate < Date.now();
     const dueDateStr = card.dueDate
         ? new Date(card.dueDate).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
         : null;
@@ -88,6 +89,7 @@ export function KanbanCard({ card, index, members, allLabels, isDragDisabled, on
                                     size="icon"
                                     className="h-6 w-6 text-muted-foreground hover:text-destructive -mr-1 -mt-1 shrink-0"
                                     onClick={(e) => { e.stopPropagation(); onDelete(card.id); }}
+                                    title="삭제"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

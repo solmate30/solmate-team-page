@@ -1,13 +1,13 @@
 'use client';
 
-import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { type columns, type cards, type teamMembers, type labels } from '@/db/schema';
 import { KanbanColumn } from './Column';
 import { TeamSettingsModal } from './TeamSettingsModal';
 import { FilterBar, type Filters } from './FilterBar';
 import { LabelManagerModal } from './LabelManagerModal';
 import { useState, useEffect, useCallback } from 'react';
-import { updateCardPositions, addCard, deleteColumn, deleteCard, addColumn, getBoardDataPolling, getLabels } from '@/actions/kanban';
+import { updateCardPositions, addCard, deleteColumn, deleteCard, addColumn, getBoardDataPolling, getLabels, updateColumnPositions } from '@/actions/kanban';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Users, Tag } from 'lucide-react';
@@ -82,10 +82,29 @@ export function KanbanBoard({ initialColumns, initialCards, initialMembers, init
 
     const onDragEnd = async (result: DropResult) => {
         if (isFiltering) return;
-        const { source, destination, draggableId } = result;
+        const { source, destination, draggableId, type } = result;
         if (!destination) return;
         if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
+        // 컬럼 드래그
+        if (type === 'column') {
+            const newColumns = Array.from(columnsState);
+            const [movedColumn] = newColumns.splice(source.index, 1);
+            newColumns.splice(destination.index, 0, movedColumn);
+            
+            setColumnsState(newColumns);
+            
+            try {
+                await updateColumnPositions(
+                    newColumns.map((col, idx) => ({ id: col.id, position: idx }))
+                );
+            } catch {
+                toast.error('컬럼 순서 변경에 실패했습니다.');
+            }
+            return;
+        }
+
+        // 카드 드래그
         const draggedCard = cardsState.find((c) => c.id === draggableId);
         if (!draggedCard) return;
 
@@ -197,20 +216,32 @@ export function KanbanBoard({ initialColumns, initialCards, initialMembers, init
             <div className="flex-1 overflow-x-auto overflow-y-hidden pt-2 pb-4">
                 <div className="flex h-full items-start gap-4 inline-flex pr-6 pb-2">
                     <DragDropContext onDragEnd={onDragEnd}>
-                        {columnsState.map((column) => (
-                            <KanbanColumn
-                                key={column.id}
-                                column={column}
-                                cards={filteredCards.filter((c) => c.columnId === column.id).sort((a, b) => a.position - b.position)}
-                                members={members}
-                                allLabels={allLabels}
-                                isDragDisabled={isFiltering}
-                                onAddCard={handleAddCard}
-                                onDeleteColumn={handleDeleteColumn}
-                                onDeleteCard={handleDeleteCard}
-                                onCardUpdated={handleCardUpdated}
-                            />
-                        ))}
+                        <Droppable droppableId="all-columns" direction="horizontal" type="column">
+                            {(provided) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="flex h-full items-start gap-4"
+                                >
+                                    {columnsState.map((column, index) => (
+                                        <KanbanColumn
+                                            key={column.id}
+                                            column={column}
+                                            index={index}
+                                            cards={filteredCards.filter((c) => c.columnId === column.id).sort((a, b) => a.position - b.position)}
+                                            members={members}
+                                            allLabels={allLabels}
+                                            isDragDisabled={isFiltering}
+                                            onAddCard={handleAddCard}
+                                            onDeleteColumn={handleDeleteColumn}
+                                            onDeleteCard={handleDeleteCard}
+                                            onCardUpdated={handleCardUpdated}
+                                        />
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
                     </DragDropContext>
 
                     <div className="w-72 shrink-0 h-full max-h-full">

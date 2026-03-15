@@ -58,6 +58,37 @@ export async function updateColumn(id: string, title: string) {
     revalidatePath('/kanban');
 }
 
+export async function updateColumnPositions(updates: { id: string; position: number }[]) {
+    for (const update of updates) {
+        await db.update(columns)
+            .set({ position: update.position })
+            .where(eq(columns.id, update.id));
+    }
+    revalidatePath('/kanban');
+}
+
+export async function toggleColumnCollapse(id: string, collapsed: boolean) {
+    await db.update(columns).set({ collapsed }).where(eq(columns.id, id));
+    revalidatePath('/kanban');
+}
+
+export async function ensureArchiveColumn() {
+    const existingArchive = await db.query.columns.findFirst({
+        where: eq(columns.title, 'Archive'),
+    });
+    
+    if (!existingArchive) {
+        const allColumns = await db.query.columns.findMany();
+        await db.insert(columns).values({
+            id: generateId(),
+            title: 'Archive',
+            position: allColumns.length,
+            createdAt: new Date(),
+            collapsed: true,
+        });
+    }
+}
+
 export async function addCard(
     columnId: string,
     title: string,
@@ -110,8 +141,37 @@ export async function deleteCard(id: string) {
 
 export async function updateCardPositions(updates: { id: string; columnId: string; position: number }[]) {
     for (const update of updates) {
+        const currentCard = await db.query.cards.findFirst({
+            where: eq(cards.id, update.id),
+        });
+        
+        const targetColumn = await db.query.columns.findFirst({
+            where: eq(columns.id, update.columnId),
+        });
+        
+        const isDoneColumn = targetColumn?.title.toLowerCase() === 'done';
+        const isArchiveColumn = targetColumn?.title.toLowerCase() === 'archive';
+        const wasNotInDoneColumn = currentCard?.columnId !== update.columnId;
+        
+        const updateData: any = {
+            columnId: update.columnId,
+            position: update.position,
+        };
+        
+        if (isDoneColumn && wasNotInDoneColumn) {
+            updateData.completedAt = Date.now();
+        } else if (!isDoneColumn && currentCard?.completedAt) {
+            updateData.completedAt = null;
+        }
+        
+        if (isArchiveColumn) {
+            updateData.archived = true;
+        } else if (currentCard?.archived) {
+            updateData.archived = false;
+        }
+        
         await db.update(cards)
-            .set({ columnId: update.columnId, position: update.position })
+            .set(updateData)
             .where(eq(cards.id, update.id));
     }
     revalidatePath('/kanban');
@@ -143,4 +203,21 @@ export async function addLabel(name: string, color: string) {
 export async function deleteLabel(id: string) {
     await db.delete(labels).where(eq(labels.id, id));
     revalidatePath('/kanban');
+}
+
+export async function archiveCard(id: string) {
+    await db.update(cards).set({ archived: true }).where(eq(cards.id, id));
+    revalidatePath('/kanban');
+}
+
+export async function unarchiveCard(id: string) {
+    await db.update(cards).set({ archived: false }).where(eq(cards.id, id));
+    revalidatePath('/kanban');
+}
+
+export async function getArchivedCards() {
+    return db.query.cards.findMany({
+        where: eq(cards.archived, true),
+        orderBy: [asc(cards.completedAt)],
+    });
 }
