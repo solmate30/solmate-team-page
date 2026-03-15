@@ -49,6 +49,7 @@ export function HeroSection() {
           <Link href="#projects" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Projects</Link>
           <Link href="#ecosystem" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Ecosystem</Link>
           <Link href="#team" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Team</Link>
+          <Link href="/kanban" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Kanban</Link>
           <Link href="/chat" className="text-sm font-medium text-white bg-[#1152d4] hover:bg-blue-700 px-4 py-2 rounded-full transition-colors">AI Chat</Link>
         </nav>
 
@@ -78,6 +79,13 @@ export function HeroSection() {
               {id.charAt(0).toUpperCase() + id.slice(1)}
             </Link>
           ))}
+          <Link 
+            href="/kanban" 
+            className="text-lg font-medium text-slate-700 border-b border-slate-100 pb-4"
+            onClick={() => setMobileOpen(false)}
+          >
+            Kanban
+          </Link>
           <Link href="/chat" onClick={() => setMobileOpen(false)}>
             <Button className="w-full bg-[#1152d4] rounded-full">AI Chat 체험하기</Button>
           </Link>
