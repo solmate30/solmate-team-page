@@ -8,9 +8,10 @@ import { FilterBar, type Filters } from './FilterBar';
 import { LabelManagerModal } from './LabelManagerModal';
 import { useState, useEffect, useCallback } from 'react';
 import { updateCardPositions, addCard, deleteColumn, deleteCard, addColumn, getBoardDataPolling, getLabels, updateColumnPositions } from '@/actions/kanban';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Users, Tag } from 'lucide-react';
+import { Plus, Users, Tag, Home } from 'lucide-react';
 import { toast } from 'sonner';
 
 type ColumnData = typeof columns.$inferSelect;
@@ -191,7 +192,15 @@ export function KanbanBoard({ initialColumns, initialCards, initialMembers, init
     return (
         <div className="flex flex-col h-full bg-background p-4 sm:p-6 lg:p-8">
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold tracking-tight">Solmate Kanban Board</h1>
+                <div className="flex items-center gap-3">
+                    <Link href="/">
+                        <Button variant="outline" size="sm">
+                            <Home className="mr-2 h-4 w-4" />
+                            메인
+                        </Button>
+                    </Link>
+                    <h1 className="text-3xl font-bold tracking-tight">Solmate Kanban Board</h1>
+                </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => { setLabelModalOpen(true); }}>
                         <Tag className="mr-2 h-4 w-4" />
@@ -214,7 +223,7 @@ export function KanbanBoard({ initialColumns, initialCards, initialMembers, init
             </div>
 
             <div className="flex-1 overflow-x-auto overflow-y-hidden pt-2 pb-4">
-                <div className="flex h-full items-start gap-4 inline-flex pr-6 pb-2">
+                <div className="flex h-full items-start gap-4 pr-6 pb-2">
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="all-columns" direction="horizontal" type="column">
                             {(provided) => (
