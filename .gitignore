@@ -1,3 +1,9 @@
 # Turborepo
 .turbo
 node_modules
+
+# macOS
+.DS_Store
+
+# Local DB
+web/local.db
