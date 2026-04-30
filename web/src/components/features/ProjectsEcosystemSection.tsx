@@ -33,6 +33,7 @@ export function ProjectsEcosystemSection() {
       image:
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f0fdf4'/%3E%3Cpath d='M400,150l-200,160h60v180h280V310h60z' fill='%2386efac' opacity='0.5'/%3E%3Cpath d='M400,150l-200,160h60v180h280V310h60z' fill='none' stroke='%2322c55e' stroke-width='3'/%3E%3Crect x='340' y='370' width='80' height='120' rx='4' fill='%2386efac' stroke='%2322c55e' stroke-width='2'/%3E%3Crect x='260' y='310' width='60' height='50' rx='4' fill='%23bbf7d0' stroke='%2322c55e' stroke-width='1.5'/%3E%3Crect x='480' y='310' width='60' height='50' rx='4' fill='%23bbf7d0' stroke='%2322c55e' stroke-width='1.5'/%3E%3C/svg%3E",
       link: "#",
+      badge: "Colosseum Frontier 2026",
       status: "개발 중",
     },
     {
