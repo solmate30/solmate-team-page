@@ -35,3 +35,14 @@ export const teamMembers = sqliteTable('team_members', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
 });
+
+export const crewMembers = sqliteTable('crew_members', {
+    id: text('id').primaryKey(),
+    nickname: text('nickname').notNull(),
+    name: text('name').notNull(),
+    career1: text('career1').notNull(),
+    career2: text('career2').notNull(),
+    photoUrl: text('photo_url').notNull().default(''),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+});
