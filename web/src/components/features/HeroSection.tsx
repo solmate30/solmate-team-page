@@ -39,7 +39,7 @@ export function HeroSection() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1152d4] text-white font-bold">
             S
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900">Solmate</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900">Solmate <span className="text-slate-400 font-normal">Collective</span></span>
         </Link>
 
         {/* Desktop Nav */}
