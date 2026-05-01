@@ -16,7 +16,7 @@ const technologies = [
     icon: <Link2 className="h-8 w-8 text-[#1152d4]" />,
     title: "Web3 & Blockchain",
     description:
-      "블록체인 네트워크(Creditcoin, BondBase)를 통해 프로젝트 자금 흐름과 사회적 임팩트를 투명하게 증명합니다.",
+      "블록체인 네트워크를 통해 프로젝트 자금 흐름과 사회적 임팩트를 투명하게 증명합니다.",
   },
   {
     icon: <Code2 className="h-8 w-8 text-[#1152d4]" />,

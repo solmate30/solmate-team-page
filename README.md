@@ -25,7 +25,7 @@ By combining the scalable emotional care of **AI** with the transparent financia
 Solmate is not just a chatbot or a real estate app. We provide a **Transparent Impact Operation** that fills the gaps in social interaction and physical spaces:
 
 1. **AI Companion Chatbot (Scalable Care)**: An AI persona ("Soli") that provides 24/7 empathetic conversation. It overcomes the physical limitations of human social workers, capable of simultaneously caring for tens of thousands of users while detecting anomalies (e.g., danger keywords) to connect them with guardians or institutions.
-2. **Transparent Regeneration via Web3 (Creditcoin & BondBase)**: Using blockchain smart contracts, the financing and execution of vacant house repairs, care costs, and donations are **100% recorded on-chain**. This completely resolves the distrust in "how the money is spent" for local governments, CSR companies, and individual donors.
+2. **Transparent Regeneration via Web3**: Using blockchain smart contracts, the financing and execution of vacant house repairs, care costs, and donations are **100% recorded on-chain**. This completely resolves the distrust in "how the money is spent" for local governments, CSR companies, and individual donors.
 3. **Raise-to-Earn (Impact Tokenomics)**: A reward system providing incentives for consistent, positive interactions with the AI companion or participating in vacant house regeneration projects, forming a sustainable ecosystem.
 
 ## 🛠 4. Tech Stack & Architecture
@@ -41,7 +41,7 @@ Solmate is not just a chatbot or a real estate app. We provide a **Transparent I
 * **Real-time Data Integration**: Korea Public Data Portal REST API (KOSIS, Korea Rural Community Corporation) with React Server Components (RSC) & Route Caching.
 
 ### Web3 & Backend (Integration in Progress)
-* **Web3/Blockchain**: Creditcoin 3.0, BondBase integration for transparent fund tracking and smart contracts.
+* **Web3/Blockchain**: Blockchain integration for transparent fund tracking and smart contracts.
 * **Database**: Decentralized Edge DB (Turso / SQLite)
 
 ## 🚀 5. Getting Started

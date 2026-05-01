@@ -48,7 +48,7 @@
 | 이슈 | 우선순위 | 비고 |
 |---|:---:|---|
 | 공공API 실데이터 연동 확인 필요 | 높음 | API 키 서버 반영 후 재테스트 |
-| Web3 Transparency 섹션 미구현 | 중간 | Mock UI 또는 Creditcoin 연동 예정 |
+| Web3 Transparency 섹션 미구현 | 중간 | Mock UI 또는 블록체인 연동 예정 |
 | TeamSection 팀원 정보 placeholder | 낮음 | 실제 팀원 정보 및 사진 교체 필요 |
 | Contact 폼 백엔드 미연동 | 중간 | 이메일 전송 또는 Notion DB 연동 예정 |
 

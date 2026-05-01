@@ -21,7 +21,7 @@ Solmate는 AI, Web3, 블록체인 기술을 활용하여 현대 사회의 파편
 
 ## 4. Unique Value Proposition (What & How)
 * **AI 기반 스케일러블 케어**: 물리적 한계를 넘어선 감성 AI 챗봇을 통해 수만 명의 독거인에게 24/7 맞춤형 대화와 모니터링 제공.
-* **Web3 기반 투명성 및 임팩트 증명**: 블록체인(Creditcoin, BondBase 등)을 통해 기부금이나 복지 예산이 빈집 수리 및 독거인 지원에 어떻게 쓰였는지(Money Flow) 투명하게 트래킹하여 신뢰도 100% 보장.
+* **Web3 기반 투명성 및 임팩트 증명**: 블록체인을 통해 기부금이나 복지 예산이 빈집 수리 및 독거인 지원에 어떻게 쓰였는지(Money Flow) 투명하게 트래킹하여 신뢰도 100% 보장.
 
 ## 5. Related Documents
 - **Concept_Design**: [Lean Canvas](./02_LEAN_CANVAS.md) - 비즈니스 모델 및 수익 구조

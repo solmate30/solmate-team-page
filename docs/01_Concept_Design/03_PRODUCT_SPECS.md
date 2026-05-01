@@ -12,7 +12,7 @@ Solmate MVP (v1.0)는 핵심 가치인 '투명한 빈집 재생'과 'AI를 통�
 | Landing Page | ✅ 완료 | `/` | Hero, Mission, Impact, SocialData, 빈집현황, Projects, Team/Contact (총 7개 섹션) |
 | AI Companion Chatbot | ✅ 완료 | `/chat` | OpenAI gpt-4o-mini, 스트리밍, 빠른 시작 칩 |
 | Empty House Projects Showcase | ✅ 완료 | `/` (VacantHousesSection) | 공공API 실데이터 연동 + Mock fallback |
-| Web3 Transparency Tracking | 🔲 예정 | `/` (향후 섹션) | Mock UI 또는 Creditcoin/BondBase 연동 |
+| Web3 Transparency Tracking | 🔲 예정 | `/` (향후 섹션) | Mock UI 또는 블록체인 연동 |
 
 ### 세부 구현 내역
 
@@ -48,7 +48,7 @@ Solmate MVP (v1.0)는 핵심 가치인 '투명한 빈집 재생'과 'AI를 통�
 * **Frontend**: Next.js 16 + React 19 + Tailwind CSS v4 + Framer Motion
 * **AI Layer**: OpenAI API (`gpt-4o-mini`, 서버 사이드 스트리밍)
 * **Public Data**: 공공데이터포털 REST API (한국농어촌공사 등)
-* **Web3 Layer**: Creditcoin, BondBase — 향후 연동 예정
+* **Web3 Layer**: 블록체인 솔루션 — 향후 연동 예정
 * **Backend/DB**: 초기 MVP는 외부 API + 서버 컴포넌트로 대체. 추후 SQLite/Turso 도입 검토.
 
 ## 4. UX & Performance Goals

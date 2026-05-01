@@ -56,7 +56,7 @@ solmate/
 1. Landing page (`/`) — Hero, Mission/Tech, Projects Showcase, Team/Contact
 2. AI Companion Chatbot (`/chat`) — OpenAI API integration with empathetic persona
 3. Empty House Projects Showcase — Card UI with funding progress
-4. Web3 Transparency Tracking — Creditcoin/BondBase money flow visualization
+4. Web3 Transparency Tracking — blockchain money flow visualization
 
 ## Coding Standards
 
