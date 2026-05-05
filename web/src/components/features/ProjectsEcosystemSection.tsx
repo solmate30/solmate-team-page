@@ -16,7 +16,7 @@ type Project = {
 export function ProjectsEcosystemSection() {
   const projects: Project[] = [
     {
-      title: "춘심 (Choonsim)",
+      title: "춘심이 (Chooncme)",
       category: "AI · Emotional Companion",
       description:
         "X(Twitter) 팔로워 3.3만의 실제 K-pop 팬덤 IP를 기반으로 한 AI 가상 동반자 앱. 단순 챗봇을 넘어 특별한 대화를 NFT로 영구 각인하고, AI 에이전트가 감성적 상호작용을 지원합니다.",
@@ -37,7 +37,7 @@ export function ProjectsEcosystemSection() {
       status: "개발 중",
     },
     {
-      title: "MyDNA Insurance Agent",
+      title: "ohmyDNA Insurance Agent",
       category: "Web3 · Privacy Tech",
       description:
         "유전자를 노출하지 않고 맞춤 보험을 추천받는 NEAR Protocol 기반 프라이버시 DApp. IronClaw TEE + Noir ZKP 3계층 프라이버시 아키텍처로 보험사에 유전자 수치를 전달하지 않습니다.",
