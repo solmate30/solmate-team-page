@@ -29,11 +29,10 @@ export function HeroSection() {
       <HouseScene />
       {/* Navigation */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between px-6 md:px-12 transition-all duration-300 ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 z-50 flex h-20 items-center justify-between px-6 md:px-12 transition-all duration-300 ${scrolled
             ? "bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm"
             : "bg-transparent"
-        }`}
+          }`}
       >
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1152d4] text-white font-bold">
@@ -50,7 +49,7 @@ export function HeroSection() {
           <Link href="#ecosystem" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Ecosystem</Link>
           <Link href="#team" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Team</Link>
           <Link href="/kanban" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Kanban</Link>
-          <Link href="https://web3people.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Web3People</Link>
+          <Link href="https://web3people.online/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Web3People</Link>
           <Link href="/chat" className="text-sm font-medium text-white bg-[#1152d4] hover:bg-blue-700 px-4 py-2 rounded-full transition-colors">AI Chat</Link>
         </nav>
 
@@ -80,16 +79,16 @@ export function HeroSection() {
               {id.charAt(0).toUpperCase() + id.slice(1)}
             </Link>
           ))}
-          <Link 
-            href="/kanban" 
+          <Link
+            href="/kanban"
             className="text-lg font-medium text-slate-700 border-b border-slate-100 pb-4"
             onClick={() => setMobileOpen(false)}
           >
             Kanban
           </Link>
-          <Link 
-            href="https://web3people.vercel.app/" 
-            target="_blank" 
+          <Link
+            href="https://web3people.online/"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-lg font-medium text-slate-700 border-b border-slate-100 pb-4"
             onClick={() => setMobileOpen(false)}
