@@ -13,7 +13,7 @@ export async function TeamContactSection() {
 
   return (
     <>
-      <div id="team" className="bg-[#FAFAFA] py-24 md:py-32 overflow-hidden">
+      <div id="team" className="bg-[#FAFAFA] py-24 md:py-32">
         <div className="max-w-7xl mx-auto px-6 md:px-12 text-center mb-14">
           <h3 className="text-sm font-semibold text-[#1152d4] tracking-wider uppercase mb-3">
             Solmate Crew
